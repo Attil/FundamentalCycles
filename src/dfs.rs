@@ -1,6 +1,6 @@
 use graph::Graph;
 
-/*pub fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
+fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
     let mut ret = Vec::new();
 
     let stacks = (graph.get_path(nodes.0)?, graph.get_path(nodes.1)?);
@@ -30,49 +30,10 @@ use graph::Graph;
     ret.push(nodes.0);
 
     Ok(ret)
-}*/
-
-pub fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
-    let mut ret = Vec::new();
-
-    let stacks = (graph.get_path(nodes.0)?, graph.get_path(nodes.1)?);
-
-    let mut iter = stacks.0.iter().peekable();
-    let mut last_mutual = None;
-    for i in stacks.1 {
-        let mut cont = false;
-        println!("-->{}, {:?}", i, iter.peek());
-        match iter.peek() {
-            Some(j) => {
-                if **j == i {
-                    cont = true;
-                    last_mutual = Some(i);
-                } else {
-                    println!("asd");
-                    ret.push(i);
-                }
-            },
-            None => ret.push(i)
-        }
-        if cont {
-            iter.next();
-        }
-    }
-
-    if let Some(i) = last_mutual {
-        ret.push(i);
-    }
-    for i in iter {
-        ret.push(*i);
-    }
-    ret.push(nodes.0);
-    ret.push(nodes.1);
-
-    Ok(ret)
 }
 
 pub fn dfs<T>(graph: &mut Graph<T>, node: usize, path: &mut Vec<usize>) -> Result<Vec<Vec<usize>>, &'static str> {
-    let ret = Vec::new();
+    let mut ret = Vec::new();
 
     graph.mark(node)?;
     graph.set_path(node, &path)?;
@@ -84,11 +45,12 @@ pub fn dfs<T>(graph: &mut Graph<T>, node: usize, path: &mut Vec<usize>) -> Resul
         graph.disconnect((node, neighbour))?;
         // A cycle?
         if graph.is_marked(neighbour)? {
-            println!("{:?}", get_cycle(graph, (node, neighbour)));
+            let cycle = get_cycle(graph, (node, neighbour))?;
+            ret.push(cycle);
         } else {
             let mut path = path.clone();
             path.push(node);
-            dfs(graph, neighbour, &mut path)?;
+            ret.extend(dfs(graph, neighbour, &mut path)?);
         }
         candidate = neighbour + 1;
     }

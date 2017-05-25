@@ -130,43 +130,4 @@ impl<T> Graph<T> {
 
         Ok(self.nodes[i].path.clone())
     }
-
-    pub fn get_cycle(&self, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
-        let mut ret = Vec::new();
-
-        let stacks = (self.get_path(nodes.0)?, self.get_path(nodes.1)?);
-
-        let mut iter = stacks.0.iter().peekable();
-        let mut last_mutual = None;
-        for i in stacks.1 {
-            let mut cont = false;
-            println!("-->{}, {:?}", i, iter.peek());
-            match iter.peek() {
-                Some(j) => {
-                    if **j == i {
-                        cont = true;
-                        last_mutual = Some(i);
-                    } else {
-                        println!("asd");
-                        ret.push(i);
-                    }
-                },
-                None => ret.push(i)
-            }
-            if cont {
-                iter.next();
-            }
-        }
-
-        if let Some(i) = last_mutual {
-            ret.push(i);
-        }
-        for i in iter {
-            ret.push(*i);
-        }
-        ret.push(nodes.0);
-        ret.push(nodes.1);
-
-        Ok(ret)
-    }
 }

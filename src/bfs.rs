@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use graph::Graph;
 
-pub fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
+fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
     let mut ret = Vec::new();
 
     let stacks = (graph.get_path(nodes.0)?, graph.get_path(nodes.1)?);
@@ -11,14 +11,12 @@ pub fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize
     let mut last_mutual = None;
     for i in stacks.1 {
         let mut cont = false;
-        println!("-->{}, {:?}", i, iter.peek());
         match iter.peek() {
             Some(j) => {
                 if **j == i {
                     cont = true;
                     last_mutual = Some(i);
                 } else {
-                    println!("asd");
                     ret.push(i);
                 }
             },
@@ -41,12 +39,13 @@ pub fn get_cycle<T>(graph: &Graph<T>, nodes: (usize, usize)) -> Result<Vec<usize
     Ok(ret)
 }
 
-pub fn bfs<T>(graph: &mut Graph<T>, node: usize) -> Result<(), &'static str> {
+pub fn bfs<T>(graph: &mut Graph<T>, node: usize) -> Result<Vec<Vec<usize>>, &'static str> {
+    let mut ret = Vec::new();
+
     let mut queue = VecDeque::new();
 
     graph.set_path(node, &vec![])?;
-
-    graph.mark(node);
+    graph.mark(node)?;
 
     queue.push_back(node);
 
@@ -56,21 +55,19 @@ pub fn bfs<T>(graph: &mut Graph<T>, node: usize) -> Result<(), &'static str> {
             None => return Err("Logic doesn't work, someone the universe fixing team")
         };
 
-        println!("{}", current);
-
         let mut candidate = 0;
         // For every neighbour
         while let Some(neighbour) = graph.next_neighbour(current, candidate) {
             graph.disconnect((current, neighbour))?;
             if graph.is_marked(neighbour)? {
-                println!("{:?}", get_cycle(graph, (current, neighbour)));
+                let cycle = get_cycle(graph, (current, neighbour))?;
+                ret.push(cycle);
             } else {
-                graph.mark(neighbour);
+                graph.mark(neighbour)?;
 
                 let mut path = graph.get_path(current).clone()?;
                 path.push(current);
                 graph.set_path(neighbour, &path)?;
-                println!("{}: {:?}", neighbour, path);
 
                 queue.push_back(neighbour);
             }
@@ -79,5 +76,5 @@ pub fn bfs<T>(graph: &mut Graph<T>, node: usize) -> Result<(), &'static str> {
         }
     }
 
-    Ok(())
+    Ok(ret)
 }

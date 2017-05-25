@@ -33,14 +33,12 @@ fn main() {
     let mut g2 = g.clone();
 
     match dfs(&mut g, 0, &mut Vec::new()) {
-        Ok(_) => println!("DFS OK"),
-        Err(error) => println!("DFS not OK: {}", error)
+        Ok(result) => println!("DFS results: {:?}", result),
+        Err(error) => println!("DFS failed: {}", error)
     }
 
     match bfs(&mut g2, 0) {
-        Ok(_) => println!("BFS OK"),
+        Ok(result) => println!("BFS results: {:?}", result),
         Err(error) => println!("BFS not OK: {}", error)
     }
-
-    println!("{:?}", g)
 }
