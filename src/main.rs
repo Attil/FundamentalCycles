@@ -10,6 +10,7 @@ mod graph;
 
 mod file;
 
+use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -29,10 +30,10 @@ fn setup(test: TestFile) -> Result<Graph<usize>, &'static str> {
     Ok(g)
 }
 
-fn load_file(filename: &'static str) -> Result<Graph<usize>, &'static str> {
+fn load_file<'a>(filename: &'a str) -> Result<Graph<usize>, &'static str> {
     let mut file = match File::open(filename) {
         Ok(file) => file,
-        Err(_) => return Err("Error while opening file")
+        Err(_) => return Err("Error while opening file. It probably doesn't exist")
     };
 
     let mut content = String::new();
@@ -50,11 +51,20 @@ fn load_file(filename: &'static str) -> Result<Graph<usize>, &'static str> {
 }
 
 fn main() {
-    let mut g = match load_file("tests/simple.test") {
-    //let mut g = match load_file("tests/performance_very_big_list.test") {
-        Ok(g) => g,
-        Err(e) => panic!(e)
+    let args : Vec<String> = env::args().collect();
+    let filename = match args.get(1) {
+        None => String::from("tests/simple.test"),
+        Some(filename) => filename.clone()
     };
+
+    let mut g;
+    match load_file(&filename) {
+        Ok(graph) => g = graph,
+        Err(error) => {
+            println!("Failed to load file: {}", error);
+            return;
+        }
+    }
 
     let mut g2 = g.clone();
 
