@@ -191,4 +191,14 @@ mod tests {
     fn bench_bfs_very_big_list_cycle(b: &mut Bencher) {
         benchmark_bfs(b, "tests/performance_very_big_list_cycle.test", 1)
     }
+
+    #[bench]
+    fn bench_dfs_extreme_list(b: &mut Bencher) {
+        benchmark_dfs(b, "tests/performance_extreme_list.test", 0)
+    }
+
+    #[bench]
+    fn bench_bfs_extreme_list(b: &mut Bencher) {
+        benchmark_bfs(b, "tests/performance_extreme_list.test", 0)
+    }
 }
