@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Clone, Debug)]
 pub struct Node<T> {
     pub data: T,
     pub visited: bool,
     pub path: Vec<usize>,
-    pub neighbours: HashMap<usize, ()>
+    pub neighbours: HashSet<usize>
 }
 
 #[derive(Clone, Debug)]
@@ -19,7 +19,7 @@ impl<T> Node<T> {
             data: value,
             visited: false,
             path: Vec::new(),
-            neighbours: HashMap::new()
+            neighbours: HashSet::new()
         }
     }
 }
@@ -41,8 +41,8 @@ impl<T> Graph<T> {
             return Err("Out of bounds");
         }
 
-        self.nodes[pos.0].neighbours.insert(pos.1, ());
-        self.nodes[pos.1].neighbours.insert(pos.0, ());
+        self.nodes[pos.0].neighbours.insert(pos.1);
+        self.nodes[pos.1].neighbours.insert(pos.0);
 
         Ok(())
     }

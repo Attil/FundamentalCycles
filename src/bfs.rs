@@ -20,7 +20,7 @@ pub fn bfs<T>(graph: &mut Graph<T>, node: usize) -> Result<Vec<Vec<usize>>, &'st
 
         // For every neighbour
         let neighbours = &graph.nodes[current].neighbours.clone();
-        for (neighbour, _) in neighbours {
+        for neighbour in neighbours {
             graph.disconnect((current, *neighbour))?;
             if graph.is_marked(*neighbour)? {
                 let cycle = graph.get_cycle((current, *neighbour))?;

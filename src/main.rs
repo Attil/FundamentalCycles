@@ -50,7 +50,8 @@ fn load_file(filename: &'static str) -> Result<Graph<usize>, &'static str> {
 }
 
 fn main() {
-    let mut g = match load_file("tests/simple.test") {
+    //let mut g = match load_file("tests/simple.test") {
+    let mut g = match load_file("tests/performance_very_big_list.test") {
         Ok(g) => g,
         Err(e) => panic!(e)
     };
@@ -115,51 +116,59 @@ mod tests {
         assert_eq!(res.len(), 2);
     }
 
+    fn benchmark_dfs(b: &mut Bencher, filename: &'static str, expected: usize) {
+        let g = load_file(filename).unwrap();
+        b.iter(|| {
+            let ret = dfs(&mut g.clone(), 0).unwrap().len();
+            assert_eq!(ret, expected);
+        })
+    }
+
+    fn benchmark_bfs(b: &mut Bencher, filename: &'static str, expected: usize) {
+        let g = load_file(filename).unwrap();
+        b.iter(|| {
+            let ret = bfs(&mut g.clone(), 0).unwrap().len();
+            assert_eq!(ret, expected);
+        })
+    }
+
     #[bench]
     fn bench_dfs(b: &mut Bencher) {
-        let g = load_file("tests/performance.test").unwrap();
-        b.iter(|| {
-            dfs(&mut g.clone(), 0).unwrap();
-        })
+        benchmark_dfs(b, "tests/performance.test", 8896)
     }
 
     #[bench]
     fn bench_bfs(b: &mut Bencher) {
-        let g = load_file("tests/performance.test").unwrap();
-        b.iter(|| {
-            bfs(&mut g.clone(), 0).unwrap();
-        })
+        benchmark_bfs(b, "tests/performance.test", 8896)
     }
 
     #[bench]
     fn bench_dfs_list(b: &mut Bencher) {
-        let g = load_file("tests/performance_list.test").unwrap();
-        b.iter(|| {
-            dfs(&mut g.clone(), 0).unwrap();
-        })
+        benchmark_dfs(b, "tests/performance_list.test", 0)
     }
 
     #[bench]
     fn bench_bfs_list(b: &mut Bencher) {
-        let g = load_file("tests/performance_list.test").unwrap();
-        b.iter(|| {
-            bfs(&mut g.clone(), 0).unwrap();
-        })
+        benchmark_bfs(b, "tests/performance_list.test", 0)
     }
 
     #[bench]
     fn bench_dfs_big_list(b: &mut Bencher) {
-        let g = load_file("tests/performance_big_list.test").unwrap();
-        b.iter(|| {
-            dfs(&mut g.clone(), 0).unwrap();
-        })
+        benchmark_dfs(b, "tests/performance_big_list.test", 0)
     }
 
     #[bench]
     fn bench_bfs_big_list(b: &mut Bencher) {
-        let g = load_file("tests/performance_big_list.test").unwrap();
-        b.iter(|| {
-            bfs(&mut g.clone(), 0).unwrap();
-        })
+        benchmark_bfs(b, "tests/performance_big_list.test", 0)
+    }
+
+    #[bench]
+    fn bench_dfs_very_big_list(b: &mut Bencher) {
+        benchmark_dfs(b, "tests/performance_very_big_list.test", 0)
+    }
+
+    #[bench]
+    fn bench_bfs_very_big_list(b: &mut Bencher) {
+        benchmark_bfs(b, "tests/performance_very_big_list.test", 0)
     }
 }
