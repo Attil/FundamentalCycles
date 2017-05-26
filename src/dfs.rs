@@ -7,7 +7,6 @@ pub fn dfs<T>(graph: &mut Graph<T>, node: usize) -> Result<Vec<Vec<usize>>, &'st
 
     let mut queue = VecDeque::new();
 
-    graph.set_path(node, &vec![])?;
     graph.mark(node)?;
 
     queue.push_back(node);
@@ -28,9 +27,7 @@ pub fn dfs<T>(graph: &mut Graph<T>, node: usize) -> Result<Vec<Vec<usize>>, &'st
             } else {
                 graph.mark(*neighbour)?;
 
-                let mut path = graph.get_path(current).clone()?;
-                path.push(current);
-                graph.set_path(*neighbour, &path)?;
+                graph.nodes[*neighbour].parent = Some(current);
 
                 queue.push_front(*neighbour);
             }

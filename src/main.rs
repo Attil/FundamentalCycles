@@ -50,8 +50,8 @@ fn load_file(filename: &'static str) -> Result<Graph<usize>, &'static str> {
 }
 
 fn main() {
-    //let mut g = match load_file("tests/simple.test") {
-    let mut g = match load_file("tests/performance_very_big_list.test") {
+    let mut g = match load_file("tests/simple.test") {
+    //let mut g = match load_file("tests/performance_very_big_list.test") {
         Ok(g) => g,
         Err(e) => panic!(e)
     };

@@ -4,7 +4,7 @@ use std::collections::HashSet;
 pub struct Node<T> {
     pub data: T,
     pub visited: bool,
-    pub path: Vec<usize>,
+    pub parent: Option<usize>,
     pub neighbours: HashSet<usize>
 }
 
@@ -18,7 +18,7 @@ impl<T> Node<T> {
         Node {
             data: value,
             visited: false,
-            path: Vec::new(),
+            parent: None,
             neighbours: HashSet::new()
         }
     }
@@ -75,59 +75,40 @@ impl<T> Graph<T> {
         Ok(self.nodes[i].visited)
     }
 
-    /*pub fn next_neighbour(&self, node: usize, first_candidate: usize) -> Option<usize> {
-        for i in first_candidate..self.nodes.len() {
-            if i == node {
-                continue;
-            }
-            let connected = match self.connected((node, i)) {
-                Ok(x) => x,
-                Err(_) => return None
-            };
-            if connected {
-                return Some(i)
-            }
-        }
-        None
-    }*/
+    fn get_path(&self, node: usize) -> Vec<usize> {
+        let size = self.nodes.len();
+        let mut ret = Vec::with_capacity(size);
 
-    pub fn set_path(&mut self, i: usize, path: &Vec<usize>) -> Result<(), &'static str> {
-        if i >= self.nodes.len() {
-            return Err("Out of bounds");
-        }
+        let mut temp = node;
+        while let Some(node) = self.nodes[temp].parent {
+            ret.push(node);
 
-        self.nodes[i].path = path.clone();
-
-        Ok(())
-    }
-
-    pub fn get_path(&self, i: usize) -> Result<Vec<usize>, &'static str> {
-        if i >= self.nodes.len() {
-            return Err("Out of bounds");
-        }
-
-        Ok(self.nodes[i].path.clone())
+            temp = node;
+        };
+        
+        ret
     }
 
     pub fn get_cycle(&self, nodes: (usize, usize)) -> Result<Vec<usize>, &'static str> {
         let mut ret = Vec::new();
 
-        let stacks = (self.get_path(nodes.0)?, self.get_path(nodes.1)?);
+        let stacks = (self.get_path(nodes.0), self.get_path(nodes.1));
 
-        let mut iter = stacks.0.iter().peekable();
+        let mut iter = stacks.0.iter().rev().peekable();
+        let iter2 = stacks.1.iter().rev();
         let mut last_mutual = None;
-        for i in stacks.1 {
+        for i in iter2 {
             let mut cont = false;
             match iter.peek() {
                 Some(j) => {
-                    if **j == i {
+                    if **j == *i {
                         cont = true;
                         last_mutual = Some(i);
                     } else {
-                        ret.push(i);
+                        ret.push(*i);
                     }
                 },
-                None => ret.push(i)
+                None => ret.push(*i)
             }
             if cont {
                 iter.next();
@@ -135,7 +116,7 @@ impl<T> Graph<T> {
         }
 
         if let Some(i) = last_mutual {
-            ret.push(i);
+            ret.push(*i);
         }
         for i in iter {
             ret.push(*i);
